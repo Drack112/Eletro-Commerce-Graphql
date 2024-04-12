@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: 'nest_mongo'
+    volumes:
+      - .docker/mongodata:/data/db
+    env_file:
+      - .env
+    environment:
+      - MONGO_INITDB_DATABASE=e-commerce
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=mongo-root
+    ports:
+      - '27017:27017'
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: 'mailhog'
+    ports:
+      - '1025:1025'
+      - '8025:8025'

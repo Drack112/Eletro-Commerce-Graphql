@@ -1,0 +1,65 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthToken {
+  accessToken: String
+  refreshToken: String
+}
+
+type AuthTokenResponse {
+  authToken: AuthToken
+  user: User
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input LoginUserInput {
+  password: String!
+  usernameOrEmail: String!
+}
+
+type MessageError {
+  message: String!
+}
+
+type Mutation {
+  activate(token: String!): AuthTokenResponse!
+  login(input: LoginUserInput!): AuthTokenResponse!
+  register(input: RegisterUserInput!): TokenResponse!
+}
+
+type Query {
+  me: UserResponse!
+}
+
+input RegisterUserInput {
+  avatar: String
+  email: String!
+  fullName: String
+  password: String
+  username: String!
+}
+
+type TokenResponse {
+  token: String
+}
+
+type User {
+  _id: ID!
+  avatar: String
+  createdAt: DateTime!
+  email: String!
+  fullName: String
+  role: String
+  updatedAt: DateTime!
+  username: String!
+}
+
+type UserResponse {
+  error: MessageError
+  user: User
+}
