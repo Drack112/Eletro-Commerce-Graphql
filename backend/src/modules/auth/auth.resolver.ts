@@ -15,6 +15,7 @@ import { UpdateProfileInput } from './dto/update-profile.input';
 import { CurrentUser } from 'src/common/decoratos/user.decorator';
 import { ResetPasswordInput } from './dto/reset-password.input';
 import { ChangePasswordInput } from './dto/change-password.input';
+import { JwtRefreshTokenGuard } from './guards/jwt-refresh.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -144,5 +145,44 @@ export class AuthResolver {
     } catch (error) {
       return { user: null, error: { message: error.message } };
     }
+  }
+
+  @Mutation(() => AuthTokenResponse)
+  public async autoRefresh(@Context() { req }: HttpContext) {
+    const refreshToken = req.session?.authToken?.refreshToken;
+    if (!refreshToken) return { user: null, authToken: null };
+    const accessToken = req.session?.authToken?.accessToken;
+    // if accessToken still valid --> ignore
+    // If access token expired and refreshToken still valid --> auto refresh
+    const userJwt =
+      await this.authService.getUserFromRefreshToken(refreshToken);
+    if (!userJwt) return { user: null, authToken: null };
+
+    const realUser = await this.userService.findById(userJwt._id);
+    if (!realUser) return { user: null, authToken: null };
+
+    if (accessToken)
+      return { authToken: req.session?.authToken, user: realUser };
+
+    const newAccessToken = await this.authService.resetAccessToken({
+      user: realUser,
+    });
+    const newAuthToken = req.session?.authToken;
+    newAuthToken.accessToken = newAccessToken;
+    req.session.authToken = newAuthToken;
+    return { authToken: newAuthToken, user: realUser };
+  }
+
+  @Mutation(() => AuthTokenResponse)
+  @UseGuards(JwtRefreshTokenGuard)
+  public async refresh(@Context() { req }: HttpContext) {
+    const userJwt: UserFromRequest = req.user;
+    const newAccessToken = await this.authService.resetAccessToken({
+      user: userJwt,
+    });
+    const newAuthToken = req.session?.authToken;
+    newAuthToken.accessToken = newAccessToken;
+    req.session.authToken = newAuthToken;
+    return { authToken: newAuthToken };
   }
 }

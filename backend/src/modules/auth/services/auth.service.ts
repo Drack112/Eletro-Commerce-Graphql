@@ -5,7 +5,10 @@ import { User, emailRegex } from 'src/modules/users/user.schema';
 import { LoginUserInput } from '../dto/login-user.input';
 import { PasswordService } from './password.service';
 import { RegisterUserInput } from '../dto/register-user.input';
-import { PayloadUserForJwtToken } from '../../../common/types/http.types';
+import {
+  PayloadUserForJwtToken,
+  UserFromRequest,
+} from '../../../common/types/http.types';
 import { envConfig } from 'src/common/config/env.config';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/common/providers/email/email.service';
@@ -199,5 +202,37 @@ export class AuthService {
       .findByIdAndUpdate(_id, { password: newHash }, { new: true })
       .lean();
     return updated;
+  }
+
+  public async getUserFromRefreshToken(
+    refreshToken: string,
+  ): Promise<User | null> {
+    if (!refreshToken) return null;
+    const decoded = await this.jwtService.verifyAsync(refreshToken);
+    const userReq: UserFromRequest = decoded.user;
+    if (!decoded || !userReq) return null;
+    const user: User = await this.userModel
+      .findOne({ email: userReq.email })
+      .select('+currentHashedRefreshToken')
+      .lean();
+    if (!user) return null;
+    if (!user.currentHashedRefreshToken) return null;
+    const isRefreshTokenMatching = await this.passwordService.verify(
+      user.currentHashedRefreshToken,
+      refreshToken,
+    );
+
+    if (!isRefreshTokenMatching) return null;
+    return user;
+  }
+
+  public async resetAccessToken(
+    payload: PayloadUserForJwtToken,
+  ): Promise<string> {
+    const expiredTime = envConfig().jwt.jwtExpiredTime;
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: expiredTime,
+    });
+    return accessToken;
   }
 }

@@ -33,10 +33,12 @@ type MessageError {
 
 type Mutation {
   activate(token: String!): AuthTokenResponse!
+  autoRefresh: AuthTokenResponse!
   changePassword(input: ChangePasswordInput!): UserResponse!
   forgotPassword(email: String!): TokenResponse!
   login(input: LoginUserInput!): AuthTokenResponse!
   logout: Boolean!
+  refresh: AuthTokenResponse!
   register(input: RegisterUserInput!): TokenResponse!
   resetPassword(input: ResetPasswordInput!): UserResponse!
   updateProfile(input: UpdateProfileInput!): UserResponse!
