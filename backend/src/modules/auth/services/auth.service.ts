@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, emailRegex } from 'src/modules/users/user.schema';
@@ -10,6 +10,9 @@ import { envConfig } from 'src/common/config/env.config';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/common/providers/email/email.service';
 import { AuthToken } from '../dto/auth-token.object-types';
+import { UpdateProfileInput } from '../dto/update-profile.input';
+import { ResetPasswordInput } from '../dto/reset-password.input';
+import { ChangePasswordInput } from '../dto/change-password.input';
 
 @Injectable()
 export class AuthService {
@@ -121,5 +124,80 @@ export class AuthService {
     if (!realUser) return null;
 
     return realUser;
+  }
+
+  public async updateProfile(
+    _id: string,
+    input: UpdateProfileInput,
+  ): Promise<User> {
+    const user = await this.userModel.findById(_id).lean();
+    if (!user) throw new BadRequestException(`User with id: ${_id} not found`);
+    const updated = await this.userModel.findByIdAndUpdate(_id, input, {
+      new: true,
+    });
+    return updated;
+  }
+
+  public async forgotPassword(email: string): Promise<string> {
+    if (!emailRegex.test(email))
+      throw new BadRequestException('Input must be a email');
+    const user = await this.userModel.findOne({ email }).lean();
+
+    if (!user)
+      throw new BadRequestException(`User not found with email ${email}`);
+    const emailToken = await this.jwtService.signAsync(
+      { user },
+      { expiresIn: envConfig().jwt.jwtExpiredTime },
+    );
+
+    await this.emailService.sendResetPassword(email, emailToken);
+    return emailToken;
+  }
+
+  public async resetPassword(input: ResetPasswordInput): Promise<User> {
+    const { token, newPassword } = input;
+    const decoded = await this.jwtService.verifyAsync(token);
+
+    if (!decoded || !decoded.user) {
+      throw new BadRequestException('Token is invalid or missing');
+    }
+
+    const userJwt = decoded.user;
+    const realUser = await this.userModel
+      .findOne({ email: userJwt.email })
+      .select('+password')
+      .lean();
+
+    if (!realUser) throw new BadRequestException('Token is not valid');
+    const hash = await this.passwordService.hash(newPassword);
+    const updated = await this.userModel
+      .findByIdAndUpdate(realUser._id, { password: hash }, { new: true })
+      .lean();
+    return updated;
+  }
+
+  public async changePassword(
+    _id: string,
+    input: ChangePasswordInput,
+  ): Promise<User> {
+    const { oldPassword, newPassword } = input;
+    const user: User = await this.userModel
+      .findById(_id)
+      .select('+password')
+      .lean();
+    if (!user) throw new BadRequestException(`User with id: ${_id} not found`);
+    const isMatch = await this.passwordService.verify(
+      user.password,
+      oldPassword,
+    );
+    if (!isMatch)
+      throw new BadRequestException(
+        `Old password must match the current user password`,
+      );
+    const newHash = await this.passwordService.hash(newPassword);
+    const updated: User = await this.userModel
+      .findByIdAndUpdate(_id, { password: newHash }, { new: true })
+      .lean();
+    return updated;
   }
 }
