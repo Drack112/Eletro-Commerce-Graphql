@@ -1,11 +1,12 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { graphqlConfig } from './common/config/graphql.config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { envConfig } from './common/config/env.config';
 import { UserModule } from './modules/users/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ProductModule } from './modules/product/product.module';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -15,12 +16,35 @@ import { AuthModule } from './modules/auth/auth.module';
         dbName: 'e-commerce',
       }),
     }),
-    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+    GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      useFactory: graphqlConfig,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      sortSchema: true,
+      buildSchemaOptions: {
+        numberScalarMode: 'integer',
+      },
+      playground: false,
+      csrfPrevention: false,
+
+      context: ({ req, connection }) => {
+        if (!connection) {
+          // Http request
+          return {
+            token: undefined as string | undefined,
+            req: req as Request,
+          };
+        } else {
+          // USE THIS TO PROVIDE THE RIGHT CONTEXT FOR I18N
+          return {
+            token: undefined as string | undefined,
+            req: connection.context as Request,
+          };
+        }
+      },
     }),
     UserModule,
     AuthModule,
+    ProductModule,
   ],
   controllers: [],
   providers: [],
