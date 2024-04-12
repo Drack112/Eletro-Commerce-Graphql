@@ -44,8 +44,35 @@ type Mutation {
   updateProfile(input: UpdateProfileInput!): UserResponse!
 }
 
+type PaginatedProduct {
+  count: Int!
+  products: [Product!]!
+}
+
+input PaginationInput {
+  limit: Int
+  page: Int
+}
+
+type Product {
+  _id: ID!
+  brand: String!
+  category: String!
+  countInStock: Int!
+  createdAt: DateTime!
+  description: String!
+  image: String!
+  name: String!
+  numReviews: Int!
+  price: Float!
+  rating: Int!
+  updatedAt: DateTime!
+  user: User!
+}
+
 type Query {
   me: UserResponse!
+  products(pagination: PaginationInput): PaginatedProduct!
 }
 
 input RegisterUserInput {
