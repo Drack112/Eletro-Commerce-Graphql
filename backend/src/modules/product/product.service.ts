@@ -13,6 +13,11 @@ export class ProductService {
     private productModel: Model<Product>,
   ) {}
 
+  public async findById(_id: string): Promise<Product> {
+    const product = await this.productModel.findById(_id).lean();
+    return product;
+  }
+
   public async findMany(
     pagination?: PaginationInput,
   ): Promise<PaginatedProduct> {

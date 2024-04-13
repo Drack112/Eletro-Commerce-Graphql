@@ -79,6 +79,7 @@ type Query {
   allCategories: [String!]!
   brandsByCategory(category: String!): [String!]!
   categoryBrands: [CategoryBrands!]!
+  findProductById(_id: String!): Product!
   latestProducts(limit: Int): [Product!]!
   me: UserResponse!
   products(pagination: PaginationInput): PaginatedProduct!

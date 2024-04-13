@@ -4,6 +4,7 @@ import { PaginatedProduct } from './dto/paginated-products.object-types';
 import { PaginationInput } from 'src/common/dto/pagination.input';
 import { Product } from './schemas/product.schema';
 import { CategoryBrands } from './dto/category-brands.object-type';
+import { BadRequestException } from '@nestjs/common';
 
 @Resolver()
 export class ProductResolver {
@@ -82,5 +83,13 @@ export class ProductResolver {
   @Query(() => [CategoryBrands])
   public async categoryBrands() {
     return await this.productService.getCategoryBrands();
+  }
+
+  @Query(() => Product)
+  public async findProductById(@Args('_id') _id: string) {
+    const product = await this.productService.findById(_id);
+    if (!product)
+      throw new BadRequestException(`Product with id ${_id} not found`);
+    return product;
   }
 }
