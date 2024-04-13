@@ -32,6 +32,17 @@ input CreateOrderInput {
   totalPrice: Float!
 }
 
+input CreateProductInput {
+  brand: String!
+  category: String!
+  countInStock: Int = 0
+  description: String!
+  image: String! = "https://i.imgur.com/Vih6Km5.png"
+  name: String!
+  numReviews: Int = 0
+  price: Float!
+}
+
 input CreateReviewProductInput {
   comment: String!
   rating: Int!
@@ -53,6 +64,12 @@ type MessageError {
 
 type Mutation {
   activate(token: String!): AuthTokenResponse!
+  adminCreateProduct(input: CreateProductInput!): Product!
+  adminDeleteProduct(_id: String!): Boolean!
+  adminDeleteUserById(_id: String!): Boolean!
+  adminSetDeliveryOrder(_id: String!): Order!
+  adminUpdateProduct(_id: String!, input: CreateProductInput!): Product!
+  adminUpdateUserById(_id: String!, input: UpdateUserInput!): UserResponse!
   autoRefresh: AuthTokenResponse!
   changePassword(input: ChangePasswordInput!): UserResponse!
   createOrder(input: CreateOrderInput!): Order!
@@ -112,6 +129,11 @@ type PaginatedProduct {
   products: [Product!]!
 }
 
+type PaginatedUser {
+  count: Int!
+  users: [User!]!
+}
+
 input PaginationInput {
   limit: Int
   page: Int
@@ -161,6 +183,11 @@ input ProductInput {
 }
 
 type Query {
+  adminGetOrders(pagination: PaginationInput): PaginatedOrder!
+  adminGetUserByEmail(email: String!): UserResponse!
+  adminGetUserById(_id: String!): UserResponse!
+  adminGetUserByUsername(username: String!): UserResponse!
+  adminSearchUsers(pagination: PaginationInput, q: String!): PaginatedUser!
   allCategories: [String!]!
   brandsByCategory(category: String!): [String!]!
   categoryBrands: [CategoryBrands!]!
@@ -225,6 +252,14 @@ input UpdateProfileInput {
   avatar: String
   email: String
   fullName: String
+  username: String
+}
+
+input UpdateUserInput {
+  avatar: String
+  email: String
+  fullName: String
+  role: String
   username: String
 }
 

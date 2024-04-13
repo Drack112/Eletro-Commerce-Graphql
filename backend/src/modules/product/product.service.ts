@@ -12,6 +12,9 @@ import { PaginationInput } from 'src/common/dto/pagination.input';
 import { CategoryBrands } from './dto/category-brands.object-type';
 import { CreateReviewProductInput } from './dto/create-review-product';
 import { UserService } from '../users/user.service';
+import { UpdateProductInput } from './dto/update-product.input';
+import { User } from '../users/user.schema';
+import { CreateProductInput } from './dto/create-product.input';
 
 @Injectable()
 export class ProductService {
@@ -226,5 +229,30 @@ export class ProductService {
     }
 
     return updated;
+  }
+
+  public async createProduct(
+    input: CreateProductInput,
+    user: User,
+  ): Promise<Product> {
+    const newProduct: Product = await this.productModel.create({
+      ...input,
+      user,
+    });
+    return newProduct;
+  }
+
+  public async updateProduct(
+    _id: string,
+    input: UpdateProductInput,
+  ): Promise<Product> {
+    const updated: Product = await this.productModel
+      .findByIdAndUpdate(_id, input, { new: true })
+      .lean();
+    return updated;
+  }
+
+  public async deleteProduct(_id: string): Promise<Product> {
+    return await this.productModel.findByIdAndDelete(_id);
   }
 }
