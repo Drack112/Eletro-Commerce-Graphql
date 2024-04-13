@@ -55,6 +55,17 @@ type Mutation {
   updateProfile(input: UpdateProfileInput!): UserResponse!
 }
 
+type OrderItem {
+  _id: ID!
+  createdAt: DateTime!
+  image: String!
+  name: String!
+  price: Float!
+  product: Product!
+  quantity: Int!
+  updatedAt: DateTime!
+}
+
 type PaginatedProduct {
   count: Int!
   products: [Product!]!
@@ -63,6 +74,14 @@ type PaginatedProduct {
 input PaginationInput {
   limit: Int
   page: Int
+}
+
+type PaymentResult {
+  _id: ID!
+  createdAt: DateTime!
+  email: String!
+  status: String!
+  updatedAt: DateTime!
 }
 
 type Product {
@@ -118,6 +137,16 @@ type Review {
   reviewerName: String!
   updatedAt: DateTime!
   user: User!
+}
+
+type ShippingAddress {
+  _id: ID!
+  address: String!
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  postalCode: String!
+  updatedAt: DateTime!
 }
 
 type TokenResponse {

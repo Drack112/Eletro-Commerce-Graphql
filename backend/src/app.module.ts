@@ -2,11 +2,14 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
+
+import { join } from 'path';
+
 import { envConfig } from './common/config/env.config';
 import { UserModule } from './modules/users/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ProductModule } from './modules/product/product.module';
-import { join } from 'path';
+import { OrderModule } from './modules/order/order.module';
 
 @Module({
   imports: [
@@ -45,6 +48,7 @@ import { join } from 'path';
     UserModule,
     AuthModule,
     ProductModule,
+    OrderModule,
   ],
   controllers: [],
   providers: [],
