@@ -59,6 +59,7 @@ type Mutation {
   forgotPassword(email: String!): TokenResponse!
   login(input: LoginUserInput!): AuthTokenResponse!
   logout: Boolean!
+  payOrder(_id: String!, paymentResult: PaymentResultInput!): Order!
   refresh: AuthTokenResponse!
   register(input: RegisterUserInput!): TokenResponse!
   resetPassword(input: ResetPasswordInput!): UserResponse!

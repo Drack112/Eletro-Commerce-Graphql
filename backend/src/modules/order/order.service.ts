@@ -4,6 +4,7 @@ import { Order } from './schemas/order.schema';
 import mongoose, { Model } from 'mongoose';
 import { CreateOrderInput } from './dto/create-order.input';
 import { PaginationInput } from 'src/common/dto/pagination.input';
+import { PaymentResultInput } from './dto/payment-result.input';
 
 @Injectable()
 export class OrderService {
@@ -63,5 +64,27 @@ export class OrderService {
   public async findOrderById(_id: string) {
     const order: Order = await this.orderModel.findById(_id).lean();
     return order;
+  }
+
+  public async updateOrderToPaid(
+    _id: string,
+    paymentResult: PaymentResultInput,
+  ) {
+    try {
+      const updated: Order = await this.orderModel
+        .findByIdAndUpdate(
+          _id,
+          {
+            isPaid: true,
+            paidAt: new Date(Date.now()),
+            paymentResult,
+          },
+          { new: true },
+        )
+        .lean();
+      return updated;
+    } catch (error) {
+      throw new HttpException(error.message, 500);
+    }
   }
 }

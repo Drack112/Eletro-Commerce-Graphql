@@ -8,6 +8,7 @@ import { CurrentUser } from 'src/common/decoratos/user.decorator';
 import { User } from '../users/user.schema';
 import { PaginationInput } from 'src/common/dto/pagination.input';
 import { PaginatedOrder } from './dto/pagination-order.object-types';
+import { PaymentResultInput } from './dto/payment-result.input';
 
 @Resolver(() => Order)
 @UseGuards(JwtGuard)
@@ -39,5 +40,13 @@ export class OrderResolver {
     @Args('pagination', { nullable: true }) pagination?: PaginationInput,
   ) {
     return await this.orderService.findOrdersByUser(user._id, pagination);
+  }
+
+  @Mutation(() => Order)
+  public async payOrder(
+    @Args('_id') _id: string,
+    @Args('paymentResult') paymentResult: PaymentResultInput,
+  ) {
+    return await this.orderService.updateOrderToPaid(_id, paymentResult);
   }
 }
