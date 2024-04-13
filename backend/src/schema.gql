@@ -22,6 +22,16 @@ input ChangePasswordInput {
   oldPassword: String!
 }
 
+input CreateOrderInput {
+  orderItems: [OrderItemInput!]!
+  paymentMethod: String!
+  paymentResult: PaymentResultInput!
+  shippingAddress: ShippingAddressInput!
+  shippingPrice: Float!
+  taxPrice: Float!
+  totalPrice: Float!
+}
+
 input CreateReviewProductInput {
   comment: String!
   rating: Int!
@@ -45,6 +55,7 @@ type Mutation {
   activate(token: String!): AuthTokenResponse!
   autoRefresh: AuthTokenResponse!
   changePassword(input: ChangePasswordInput!): UserResponse!
+  createOrder(input: CreateOrderInput!): Order!
   forgotPassword(email: String!): TokenResponse!
   login(input: LoginUserInput!): AuthTokenResponse!
   logout: Boolean!
@@ -53,6 +64,24 @@ type Mutation {
   resetPassword(input: ResetPasswordInput!): UserResponse!
   reviewProduct(input: CreateReviewProductInput!, productId: String!): Product!
   updateProfile(input: UpdateProfileInput!): UserResponse!
+}
+
+type Order {
+  _id: ID!
+  createdAt: DateTime!
+  deliveredAt: DateTime
+  isDelivered: Boolean!
+  isPaid: Boolean!
+  orderItems: [OrderItem!]!
+  paidAt: DateTime
+  paymentMethod: String!
+  paymentResult: PaymentResult!
+  shippingAddress: ShippingAddress!
+  shippingPrice: Float!
+  taxPrice: Float!
+  totalPrice: Float!
+  updatedAt: DateTime!
+  user: User!
 }
 
 type OrderItem {
@@ -64,6 +93,12 @@ type OrderItem {
   product: Product!
   quantity: Int!
   updatedAt: DateTime!
+}
+
+input OrderItemInput {
+  price: Float!
+  product: ProductInput!
+  quantity: Int!
 }
 
 type PaginatedProduct {
@@ -84,6 +119,11 @@ type PaymentResult {
   updatedAt: DateTime!
 }
 
+input PaymentResultInput {
+  email: String!
+  status: String!
+}
+
 type Product {
   _id: ID!
   brand: String!
@@ -99,6 +139,19 @@ type Product {
   reviews: [Review!]!
   updatedAt: DateTime!
   user: User!
+}
+
+input ProductInput {
+  _id: ID!
+  brand: String!
+  category: String!
+  countInStock: Int! = 0
+  description: String!
+  image: String!
+  name: String!
+  numReviews: Int! = 0
+  price: Float!
+  rating: Int! = 0
 }
 
 type Query {
@@ -147,6 +200,13 @@ type ShippingAddress {
   createdAt: DateTime!
   postalCode: String!
   updatedAt: DateTime!
+}
+
+input ShippingAddressInput {
+  address: String!
+  city: String!
+  country: String!
+  postalCode: String!
 }
 
 type TokenResponse {

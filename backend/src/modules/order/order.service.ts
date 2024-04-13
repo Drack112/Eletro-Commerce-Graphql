@@ -14,8 +14,10 @@ export class OrderService {
       if (!orderItems && orderItems?.length === 0) {
         throw new BadRequestException('Not items');
       }
-
-      const order = await this.orderModel.create({ ...input, user: userId });
+      const order: Order = await this.orderModel.create({
+        ...input,
+        user: userId,
+      });
       return order;
     } catch (error) {
       throw new HttpException(error.message, 500);
