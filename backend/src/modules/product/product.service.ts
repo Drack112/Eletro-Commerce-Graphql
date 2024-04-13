@@ -1,16 +1,24 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from './schemas/product.schema';
 import { PaginatedProduct } from './dto/paginated-products.object-types';
 import { PaginationInput } from 'src/common/dto/pagination.input';
 import { CategoryBrands } from './dto/category-brands.object-type';
+import { CreateReviewProductInput } from './dto/create-review-product';
+import { UserService } from '../users/user.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name)
     private productModel: Model<Product>,
+    private userService: UserService,
   ) {}
 
   public async findById(_id: string): Promise<Product> {
@@ -162,5 +170,61 @@ export class ProductService {
     } catch (error) {
       throw new HttpException(error.message, 500);
     }
+  }
+
+  public async createOrUpdateReviewProduct(
+    userId: string,
+    productId: string,
+    input: CreateReviewProductInput,
+  ) {
+    const user = await this.userService.findById(userId);
+    if (!user) throw new UnauthorizedException();
+
+    const product = await this.findById(productId);
+    if (!product)
+      throw new BadRequestException(`Product with id: ${productId} not found`);
+
+    const isAlreadyReviewed = await this.productModel
+      .findOne({
+        _id: productId,
+        'reviews.user._id': userId,
+      })
+      .lean();
+
+    const review = {
+      ...input,
+      reviewerName: user.fullName || user.username,
+      user,
+    };
+
+    let updated: Product;
+
+    if (!isAlreadyReviewed) {
+      updated = await this.productModel.findByIdAndUpdate(
+        productId,
+        {
+          $push: { reviews: review },
+        },
+        { new: true },
+      );
+    } else {
+      updated = await this.productModel
+        .findOneAndUpdate(
+          {
+            _id: productId,
+            'reviews.user._id': userId,
+          },
+          {
+            $set: {
+              'reviews.$.rating': input.rating,
+              'reviews.$.comment': input.comment,
+            },
+          },
+          { new: true },
+        )
+        .lean();
+    }
+
+    return updated;
   }
 }

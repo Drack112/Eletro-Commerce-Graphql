@@ -1,10 +1,14 @@
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ProductService } from './product.service';
 import { PaginatedProduct } from './dto/paginated-products.object-types';
 import { PaginationInput } from 'src/common/dto/pagination.input';
 import { Product } from './schemas/product.schema';
 import { CategoryBrands } from './dto/category-brands.object-type';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, UseGuards } from '@nestjs/common';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { CreateReviewProductInput } from './dto/create-review-product';
+import { CurrentUser } from 'src/common/decoratos/user.decorator';
+import { User } from '../users/user.schema';
 
 @Resolver()
 export class ProductResolver {
@@ -91,5 +95,22 @@ export class ProductResolver {
     if (!product)
       throw new BadRequestException(`Product with id ${_id} not found`);
     return product;
+  }
+
+  @Mutation(() => Product)
+  @UseGuards(JwtGuard)
+  public async reviewProduct(
+    @Args('productId')
+    productId: string,
+    @Args('input')
+    input: CreateReviewProductInput,
+    @CurrentUser()
+    user: User,
+  ) {
+    return await this.productService.createOrUpdateReviewProduct(
+      user._id,
+      productId,
+      input,
+    );
   }
 }

@@ -9,6 +9,7 @@ import {
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types, Document } from 'mongoose';
 import { User } from 'src/modules/users/user.schema';
+import { Review } from './review..schema';
 
 @Schema()
 @ObjectType('Product')
@@ -56,6 +57,10 @@ export class Product extends Document {
   @Prop({ type: Number, required: true, default: 0 })
   @Field(() => Int)
   countInStock: number;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: Review.name }], default: [] })
+  @Field(() => [Review])
+  reviews: any[];
 
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   @Field(() => User)
