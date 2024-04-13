@@ -6,15 +6,16 @@ import {
   ObjectType,
 } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types, Document } from 'mongoose';
+import { ShippingAddress } from './shipping-address.schema';
 import { PaymentResult } from './payment-result.schema';
 import { OrderItem } from './ordem-item.schema';
 import { User } from 'src/modules/users/user.schema';
-import { ShippingAddress } from './shipping-address.schema';
 
 @Schema()
 @ObjectType()
 export class Order extends Document {
+  // @Prop({ type: Types.ObjectId })
   @Field(() => ID)
   _id: string;
 

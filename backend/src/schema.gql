@@ -101,6 +101,11 @@ input OrderItemInput {
   quantity: Int!
 }
 
+type PaginatedOrder {
+  count: Int!
+  orders: [Order!]!
+}
+
 type PaginatedProduct {
   count: Int!
   products: [Product!]!
@@ -161,6 +166,8 @@ type Query {
   findProductById(_id: String!): Product!
   latestProducts(limit: Int): [Product!]!
   me: UserResponse!
+  myOrders(pagination: PaginationInput): PaginatedOrder!
+  orderById(_id: String!): Order!
   products(pagination: PaginationInput): PaginatedProduct!
   productsByBrand(brand: String!, pagination: PaginationInput): PaginatedProduct!
   productsByCategory(category: String!, pagination: PaginationInput): PaginatedProduct!
