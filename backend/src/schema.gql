@@ -12,6 +12,11 @@ type AuthTokenResponse {
   user: User
 }
 
+type CategoryBrands {
+  brands: [String!]!
+  category: String!
+}
+
 input ChangePasswordInput {
   newPassword: String!
   oldPassword: String!
@@ -71,8 +76,17 @@ type Product {
 }
 
 type Query {
+  allCategories: [String!]!
+  brandsByCategory(category: String!): [String!]!
+  categoryBrands: [CategoryBrands!]!
+  latestProducts(limit: Int): [Product!]!
   me: UserResponse!
   products(pagination: PaginationInput): PaginatedProduct!
+  productsByBrand(brand: String!, pagination: PaginationInput): PaginatedProduct!
+  productsByCategory(category: String!, pagination: PaginationInput): PaginatedProduct!
+  productsOfBrandByCategory(brand: String!, category: String!, pagination: PaginationInput): PaginatedProduct!
+  queryProducts(pagination: PaginationInput, q: String!): PaginatedProduct!
+  topProducts(limit: Int): [Product!]!
 }
 
 input RegisterUserInput {
