@@ -1,0 +1,5 @@
+query ProductById($_id: String!) {
+  findProductById(_id: $_id) {
+    ...RegularProduct
+  }
+}

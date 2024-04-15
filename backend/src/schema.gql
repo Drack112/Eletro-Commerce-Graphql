@@ -12,6 +12,18 @@ type AuthTokenResponse {
   user: User
 }
 
+type CartItem {
+  price: Float!
+  product: ProductCart!
+  quantity: Int!
+}
+
+input CartItemInput {
+  price: Float!
+  product: ProductInput!
+  quantity: Int!
+}
+
 type CategoryBrands {
   brands: [String!]!
   category: String!
@@ -64,6 +76,7 @@ type MessageError {
 
 type Mutation {
   activate(token: String!): AuthTokenResponse!
+  addToCart(input: CartItemInput!): [CartItem!]!
   adminCreateProduct(input: CreateProductInput!): Product!
   adminDeleteProduct(_id: String!): Boolean!
   adminDeleteUserById(_id: String!): Boolean!
@@ -79,8 +92,10 @@ type Mutation {
   payOrder(_id: String!, paymentResult: PaymentResultInput!): Order!
   refresh: AuthTokenResponse!
   register(input: RegisterUserInput!): TokenResponse!
+  removeItemFromCart(productId: String!): [CartItem!]!
   resetPassword(input: ResetPasswordInput!): UserResponse!
   reviewProduct(input: CreateReviewProductInput!, productId: String!): Product!
+  updateCart(input: CartItemInput!): [CartItem!]!
   updateProfile(input: UpdateProfileInput!): UserResponse!
 }
 
@@ -167,6 +182,19 @@ type Product {
   reviews: [Review!]!
   updatedAt: DateTime!
   user: User!
+}
+
+type ProductCart {
+  _id: ID!
+  brand: String!
+  category: String!
+  countInStock: Int!
+  description: String!
+  image: String!
+  name: String!
+  numReviews: Int!
+  price: Float!
+  rating: Int!
 }
 
 input ProductInput {

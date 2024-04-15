@@ -10,6 +10,7 @@ import { ProductService } from '../product/product.service';
 import { OrderService } from '../order/order.service';
 import { Order, OrderSchema } from '../order/schemas/order.schema';
 import { Product, ProductSchema } from '../product/schemas/product.schema';
+import { UserResolver } from './user.resolver';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { Product, ProductSchema } from '../product/schemas/product.schema';
     ProductService,
     AdminResolver,
     UserController,
+    UserResolver,
   ],
   exports: [UserService, UploadService],
 })
